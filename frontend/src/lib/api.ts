@@ -1,10 +1,13 @@
 import axios from 'axios';
 import { STORAGE_KEYS, storage } from './storage';
 
-const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+const baseURL = import.meta.env.VITE_API_URL || '';
 const DEV_MOCK_API = String(import.meta.env.VITE_DEV_MOCK_API || '').toLowerCase() === 'true';
 
-export const api = axios.create({ baseURL });
+export const api = axios.create({ 
+  baseURL,
+  withCredentials: true 
+});
 
 api.interceptors.request.use((config) => {
   const token = storage.get<string>(STORAGE_KEYS.token);

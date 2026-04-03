@@ -5,10 +5,14 @@ const connectDB = async () => {
   try {
     let mongoUri = process.env.MONGO_URI;
 
-    if (process.env.USE_IN_MEMORY_DB === 'true') {
+    if (process.env.USE_IN_MEMORY_DB === 'true' && process.env.NODE_ENV !== 'production') {
       const mongod = await MongoMemoryServer.create();
       mongoUri = mongod.getUri();
       console.log('Using In-Memory MongoDB');
+    }
+
+    if (!mongoUri) {
+      throw new Error('MONGO_URI is not defined in production environment');
     }
 
     const conn = await mongoose.connect(mongoUri);

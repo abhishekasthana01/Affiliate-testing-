@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const compression = require('compression');
 const rateLimit = require('express-rate-limit');
 
 const app = express();
@@ -9,10 +10,11 @@ const app = express();
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(compression());
 
 // CORS Configuration
 const corsOptions = {
-  origin: process.env.CORS_ORIGIN || '*', // Allow all by default, or restrict in prod
+  origin: process.env.CORS_ORIGIN || '*', 
   credentials: true,
   optionsSuccessStatus: 200
 };
@@ -22,6 +24,8 @@ app.use(helmet());
 // Logging
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
+} else {
+  app.use(morgan('combined'));
 }
 
 // Rate Limiting

@@ -99,6 +99,28 @@ npm run dev
 - **Backend:** `npm test` (if tests configured)
 - **CI/CD:** GitHub Actions configured in `.github/workflows/ci.yml`
 
-## 📦 Deployment
-- **Frontend:** Build with `npm run build`, deploy to S3/Vercel/Netlify.
-- **Backend:** Deploy to EC2/ECS/Heroku. Ensure `MONGO_URI` is set in production.
+## 📦 Production Deployment (Vercel & Render)
+
+To host this platform with your current setup (Frontend on Vercel, Backend on Render):
+
+### 1. Backend Setup (Render)
+- **Environment Variables**: In your Render dashboard, go to Environment and add:
+    - `MONGO_URI`: `mongodb+srv://abhishekastanaofc_db_user:ax2PIf1jO1SX1cXX@cluster0.rifdhzp.mongodb.net/myapp?retryWrites=true&w=majority`
+    - `JWT_SECRET`: `beam_affiliate_platform_secret_key_2026_prod`
+    - `NODE_ENV`: `production`
+    - `CORS_ORIGIN`: Your Vercel frontend URL (e.g., `https://your-app.vercel.app`)
+- **Build Command**: `npm install`
+- **Start Command**: `node src/server.js`
+
+### 2. Frontend Setup (Vercel)
+- **Environment Variables**: In your Vercel project settings, add:
+    - `VITE_API_URL`: Your Render backend URL (e.g., `https://your-api.onrender.com`)
+- **Framework Preset**: Vite
+- **Root Directory**: `frontend/`
+- **Build Command**: `npm run build`
+- **Output Directory**: `dist`
+
+### 3. SPA Routing
+I have added a `vercel.json` file in the `frontend/` directory to ensure that React Router works correctly after deployment (prevents 404 errors on page refresh).
+
+
