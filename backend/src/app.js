@@ -22,7 +22,7 @@ app.use(cors({
   allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
-app.options("*", cors()); // 🔥 fixes preflight add in backend
+// 🔥 Removed app.options as Express 5 path-to-regexp crashes on wildcard strings, and app.use(cors) already handles preflights.
 app.use(helmet());
 
 // Logging
