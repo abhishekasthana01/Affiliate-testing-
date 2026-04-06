@@ -15,7 +15,7 @@ const seal65Image = new URL('../../assets/images/seal_65.png', import.meta.url).
 
 const Footer = () => {
   const [email, setEmail] = useState<string>("");
-  const [showSuccess, setShowSuccess] = useState<boolean>(false);
+  const [_, setShowSuccess] = useState<boolean>(false);
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);

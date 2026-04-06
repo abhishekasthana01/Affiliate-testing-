@@ -1,4 +1,3 @@
-import React from 'react';
 import logoBeam from '../assets/logo_beam.png';
 
 type LogoSize = 'sm' | 'md' | 'lg' | 'xl' | number;
