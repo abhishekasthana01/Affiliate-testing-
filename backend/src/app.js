@@ -17,7 +17,7 @@ app.use(compression());
 
 // CORS Configuration
 app.use(cors({
-  origin: (origin, callback) => callback(null, true),
+  origin: 'http://localhost:5173', // Replace '*' with your specific frontend URL
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "X-Reseller-Id"]
