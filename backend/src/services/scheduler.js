@@ -1,5 +1,7 @@
 const cron = require('node-cron');
 const Campaign = require('../models/Campaign');
+const Segment = require('../models/Segment');
+const User = require('../models/User');
 const config = require('../config');
 
 // Mock Email Sender
@@ -8,6 +10,35 @@ const sendEmail = async (campaign, recipient) => {
   console.log(`[Email Mock] Sending '${campaign.subject}' to ${recipient.email}`);
   return true;
 };
+
+function buildSegmentQuery(segment) {
+  const f = segment?.filters || {};
+  const q = {};
+  if (Array.isArray(f.roles) && f.roles.length) q.role = { $in: f.roles };
+  if (typeof f.isActive === 'boolean') q.isActive = f.isActive;
+  if (f.createdAfter || f.createdBefore) {
+    q.createdAt = {};
+    if (f.createdAfter) q.createdAt.$gte = new Date(f.createdAfter);
+    if (f.createdBefore) q.createdAt.$lte = new Date(f.createdBefore);
+  }
+  if (Array.isArray(f.resellerIds) && f.resellerIds.length) q.resellerId = { $in: f.resellerIds };
+  if (Array.isArray(f.emails) && f.emails.length) q.email = { $in: f.emails };
+  return q;
+}
+
+async function resolveRecipients(campaign) {
+  if (Array.isArray(campaign.recipients) && campaign.recipients.length) {
+    return campaign.recipients.map((email) => ({ email }));
+  }
+  if (campaign.segmentId) {
+    const segment = await Segment.findById(campaign.segmentId).lean();
+    if (!segment || segment.status !== 'active') return [];
+    const q = buildSegmentQuery(segment);
+    const users = await User.find(q).select('email').limit(50000).lean();
+    return users.map((u) => ({ email: u.email }));
+  }
+  return [];
+}
 
 const initScheduler = () => {
   console.log('Scheduler initialized...');
@@ -28,13 +59,18 @@ const initScheduler = () => {
         campaign.status = 'Sending';
         await campaign.save();
 
-        // Simulate sending to a list (Mock)
-        // In real app, fetch users/segments
-        const mockRecipients = [{ email: 'test@example.com' }]; 
+        const recipients = await resolveRecipients(campaign);
+        campaign.recipientsCount = recipients.length;
+        await campaign.save();
         
-        for (const recipient of mockRecipients) {
-          await sendEmail(campaign, recipient);
-          campaign.stats.sent += 1;
+        for (const recipient of recipients) {
+          try {
+            await sendEmail(campaign, recipient);
+            campaign.stats.sent += 1;
+            campaign.stats.delivered += 1;
+          } catch {
+            campaign.stats.bounced += 1;
+          }
         }
 
         campaign.status = 'Sent';

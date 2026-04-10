@@ -1,9 +1,10 @@
 const User = require('../models/User');
 const AuditLog = require('../models/AuditLog');
 const { v4: uuidv4 } = require('uuid');
-
-// Mock OTP storage (in memory for MVP, use Redis in prod)
-const otpStore = new Map();
+const DeletionRequest = require('../models/DeletionRequest');
+const Transaction = require('../models/Transaction');
+const Payout = require('../models/Payout');
+const Click = require('../models/Click');
 
 // @desc    Request data deletion (Public)
 // @route   POST /privacy/deletion-request
@@ -19,8 +20,9 @@ const requestDeletion = async (req, res) => {
   // Generate OTP
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   const token = uuidv4();
-  
-  otpStore.set(token, { email, otp, expires: Date.now() + 10 * 60 * 1000 }); // 10 min
+  const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+  await DeletionRequest.create({ token, email, otp, expiresAt });
 
   // Log audit
   await AuditLog.create({
@@ -40,10 +42,9 @@ const requestDeletion = async (req, res) => {
 // @route   POST /privacy/confirm-deletion
 const confirmDeletion = async (req, res) => {
   const { token, otp } = req.body;
-  
-  const record = otpStore.get(token);
-  
-  if (!record || record.otp !== otp || record.expires < Date.now()) {
+
+  const record = await DeletionRequest.findOne({ token });
+  if (!record || record.usedAt || record.otp !== otp || record.expiresAt.getTime() < Date.now()) {
     return res.status(400).json({ message: 'Invalid or expired code' });
   }
 
@@ -66,12 +67,37 @@ const confirmDeletion = async (req, res) => {
     userAgent: req.headers['user-agent'],
   });
 
-  otpStore.delete(token);
+  record.usedAt = new Date();
+  await record.save();
 
   res.json({ message: 'Account deleted successfully.' });
+};
+
+// @desc    Export my data (authenticated)
+// @route   GET /privacy/export
+const exportMyData = async (req, res) => {
+  const user = await User.findById(req.user.id).select('-password -signupOTP -signupOTPExpire -resetPasswordOTP -resetPasswordOTPExpire');
+  if (!user) return res.status(404).json({ message: 'User not found' });
+
+  const resellerId = user.resellerId;
+  const [transactions, payouts, clicks] = await Promise.all([
+    resellerId ? Transaction.find({ resellerId }).lean() : [],
+    resellerId ? Payout.find({ resellerId }).lean() : [],
+    resellerId ? Click.find({ resellerId }).lean() : [],
+  ]);
+
+  res.json({
+    data: {
+      user,
+      reseller: resellerId
+        ? { resellerId, transactions, payouts, clicks }
+        : null,
+    },
+  });
 };
 
 module.exports = {
   requestDeletion,
   confirmDeletion,
+  exportMyData,
 };

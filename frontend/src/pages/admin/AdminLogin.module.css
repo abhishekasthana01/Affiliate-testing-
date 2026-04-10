@@ -1,0 +1,162 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: radial-gradient(900px 600px at 20% 20%, rgba(255, 32, 105, 0.22), transparent 60%),
+    radial-gradient(900px 600px at 70% 30%, rgba(80, 48, 226, 0.28), transparent 60%),
+    radial-gradient(900px 600px at 50% 90%, rgba(84, 217, 201, 0.18), transparent 55%),
+    linear-gradient(135deg, #5030E2 0%, #06303A 100%);
+}
+
+.card {
+  width: 100%;
+  max-width: 560px;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(25, 25, 25, 0.12);
+  border-radius: 20px;
+  box-shadow: 0 28px 70px -24px rgba(25, 25, 25, 0.45);
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.header {
+  padding: 20px 22px;
+  color: #FFFFFF;
+  background: linear-gradient(135deg, #FF2069 0%, #CC1A54 45%, #5030E2 100%);
+  border-bottom: 1px solid rgba(25, 25, 25, 0.12);
+}
+
+.headerRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.badge {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+.title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: #FFFFFF;
+  letter-spacing: 0.01em;
+}
+
+.subtitle {
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.errorBox {
+  border: 1px solid rgba(25, 25, 25, 0.12);
+  background: #F6C838;
+  color: #06303A;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-weight: 800;
+  font-size: 13px;
+  margin: 16px 22px 0;
+}
+
+.content {
+  padding: 18px 22px 22px;
+}
+
+.welcome {
+  color: #06303A;
+  font-weight: 900;
+  font-size: 22px;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.hint {
+  margin-top: 6px;
+  color: #4A5E66;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.form {
+  margin-top: 16px;
+}
+
+.ctaRow {
+  margin-top: 10px;
+}
+
+.secureNote {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: #4A5E66;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.divider {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(25, 25, 25, 0.12);
+  text-align: center;
+}
+
+.backLink {
+  text-decoration: none;
+  color: #FF2069;
+  font-weight: 800;
+  font-size: 14px;
+}
+
+/* Scope overrides so ONLY admin-login uses these palette colors */
+.scope :global(.label) {
+  color: #06303A;
+}
+
+.scope :global(.input) {
+  border: 1px solid rgba(25, 25, 25, 0.12);
+  color: #06303A;
+  background: #FFFFFF;
+}
+
+.scope :global(.input:focus) {
+  outline: 2px solid #FF2069;
+}
+
+.scope :global(.btn-primary) {
+  background: #FF2069;
+  color: #FFFFFF;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-weight: 900;
+}
+
+.scope :global(.btn-primary:hover) {
+  background: #CC1A54;
+}
+
+.scope :global(.spinner) {
+  border-color: #FFFFFF;
+  border-top-color: transparent;
+}
+
+@media (max-width: 520px) {
+  .header { padding: 18px 16px; }
+  .content { padding: 16px; }
+  .errorBox { margin-left: 16px; margin-right: 16px; }
+}
+

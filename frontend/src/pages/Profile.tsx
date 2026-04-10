@@ -5,8 +5,10 @@ import { Loader } from '../components/ui/Loader';
 import { ErrorState } from '../components/ui/ErrorState';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
+import { Card } from '../components/ui/Card';
 
-type ProfileData = { id: string; name: string; email: string };
+type Wallet = { currency: string; availableBalance: number; pendingBalance: number; lockedBalance: number };
+type ProfileData = { id: string; name: string; email: string; wallet?: Wallet };
 type SettingsData = { notifications: boolean };
 
 export default function Profile() {
@@ -50,22 +52,45 @@ export default function Profile() {
   if (!profile) return <div className="text-muted" style={{ fontSize: 14 }}>Profile unavailable.</div>;
 
   return (
-    <form onSubmit={onSave} className="card stack" style={{ maxWidth: 600 }}>
-      <div>
-        <h2 className="title-lg">Profile</h2>
-        <div className="stack-sm" style={{ marginTop: 12 }}>
-          <Input label="Name" value={profile.name} onChange={(e) => setProfile({ ...profile, name: e.target.value })} />
-          <Input label="Email" value={profile.email} disabled />
+    <div className="stack" style={{ maxWidth: 900 }}>
+      <Card>
+        <div className="title-lg">Wallet</div>
+        <div className="grid-3" style={{ marginTop: 12 }}>
+          <div>
+            <div className="text-muted" style={{ fontSize: 12 }}>Available</div>
+            <div className="title-xl">{profile.wallet?.currency || 'USD'} {Number(profile.wallet?.availableBalance || 0).toLocaleString()}</div>
+          </div>
+          <div>
+            <div className="text-muted" style={{ fontSize: 12 }}>Pending</div>
+            <div className="title-xl">{profile.wallet?.currency || 'USD'} {Number(profile.wallet?.pendingBalance || 0).toLocaleString()}</div>
+          </div>
+          <div>
+            <div className="text-muted" style={{ fontSize: 12 }}>Locked</div>
+            <div className="title-xl">{profile.wallet?.currency || 'USD'} {Number(profile.wallet?.lockedBalance || 0).toLocaleString()}</div>
+          </div>
         </div>
-      </div>
-      <div>
-        <h2 className="title-lg">Settings</h2>
-        <label className="row" style={{ marginTop: 12 }}>
-          <input type="checkbox" checked={settings.notifications} onChange={(e) => setSettings({ ...settings, notifications: e.target.checked })} />
-          <span style={{ fontSize: 14, color: '#334155' }}>Email notifications</span>
-        </label>
-      </div>
-      <Button type="submit" loading={saving}>Save changes</Button>
-    </form>
+        <div className="text-muted" style={{ marginTop: 8, fontSize: 12 }}>
+          Pending becomes available after admin approval. Locked is reserved for payout processing.
+        </div>
+      </Card>
+
+      <form onSubmit={onSave} className="card stack">
+        <div>
+          <h2 className="title-lg">Profile</h2>
+          <div className="stack-sm" style={{ marginTop: 12 }}>
+            <Input label="Name" value={profile.name} onChange={(e) => setProfile({ ...profile, name: e.target.value })} />
+            <Input label="Email" value={profile.email} disabled />
+          </div>
+        </div>
+        <div>
+          <h2 className="title-lg">Settings</h2>
+          <label className="row" style={{ marginTop: 12 }}>
+            <input type="checkbox" checked={settings.notifications} onChange={(e) => setSettings({ ...settings, notifications: e.target.checked })} />
+            <span style={{ fontSize: 14, color: '#334155' }}>Email notifications</span>
+          </label>
+        </div>
+        <Button type="submit" loading={saving}>Save changes</Button>
+      </form>
+    </div>
   );
 }

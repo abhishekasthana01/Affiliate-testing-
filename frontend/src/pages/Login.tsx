@@ -44,6 +44,11 @@ export default function Login() {
         <Button type="submit" loading={loading} style={{ width: '100%' }}>Login</Button>
       </form>
       <p className="text-muted" style={{ marginTop: 16, fontSize: 14 }}>Don't have an account? <Link to="/signup" className="nav-link" style={{ color: 'var(--pink)' }}>Sign up</Link></p>
+      <p style={{ marginTop: 16, fontSize: 14, textAlign: 'center' }}>
+        <Link to="/admin/login" style={{ color: 'var(--merchant)', textDecoration: 'none', fontWeight: 600 }}>
+          🛡️ Admin Login
+        </Link>
+      </p>
     </div>
   );
 }

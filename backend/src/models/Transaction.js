@@ -19,6 +19,10 @@ const transactionSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    commissionBreakdown: {
+      type: Object,
+      default: undefined,
+    },
     status: {
       type: String,
       enum: ['pending', 'approved', 'paid', 'rejected'],
@@ -37,6 +41,26 @@ const transactionSchema = new mongoose.Schema(
     clickId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Click',
+    },
+    attribution: {
+      model: {
+        type: String,
+        enum: ['last_click'],
+        default: 'last_click',
+      },
+      lookbackDays: {
+        type: Number,
+        default: 30,
+      },
+      referralCode: String,
+      couponCode: String,
+      deviceId: String,
+      sessionId: String,
+      attributedAt: Date,
+      evidence: {
+        type: Object,
+        default: undefined,
+      },
     },
     // Fraud / Risk Scoring
     fraudScore: {
@@ -58,6 +82,11 @@ const transactionSchema = new mongoose.Schema(
   {
     timestamps: true,
   }
+);
+
+transactionSchema.index(
+  { paymentId: 1 },
+  { unique: true, sparse: true }
 );
 
 module.exports = mongoose.model('Transaction', transactionSchema);

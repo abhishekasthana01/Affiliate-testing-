@@ -6,3 +6,5 @@ export function Loader({ text = 'Loading...' }: { text?: string }) {
     </div>
   );
 }
+
+export default Loader;

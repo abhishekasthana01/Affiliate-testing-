@@ -22,6 +22,7 @@ export default function Navbar() {
             <NavLink to="/products" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Products</NavLink>
             <NavLink to="/transactions" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Transactions</NavLink>
             <NavLink to="/marketing" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Marketing</NavLink>
+            <NavLink to="/affiliate-tools" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Affiliate Tools</NavLink>
             <NavLink to="/reports" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Reports</NavLink>
             <NavLink to="/payouts" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Payouts</NavLink>
             <NavLink to="/profile" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Profile</NavLink>
@@ -50,6 +51,7 @@ export default function Navbar() {
           <Link to="/products" onClick={closeMobile}>Products</Link>
           <Link to="/transactions" onClick={closeMobile}>Transactions</Link>
           <Link to="/marketing" onClick={closeMobile}>Marketing</Link>
+          <Link to="/affiliate-tools" onClick={closeMobile}>Affiliate Tools</Link>
           <Link to="/reports" onClick={closeMobile}>Reports</Link>
           <Link to="/payouts" onClick={closeMobile}>Payouts</Link>
           <Link to="/profile" onClick={closeMobile}>Profile</Link>

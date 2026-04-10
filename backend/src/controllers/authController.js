@@ -2,12 +2,16 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const generateToken = require('../utils/generateToken');
+const Notification = require('../models/Notification');
+const { emitToAdmins } = require('../services/realtime');
+const { sendEmail } = require('../services/emailService');
+const config = require('../config');
 
 // @desc    Register new user
 // @route   POST /auth/register
 // @access  Public
 const registerUser = async (req, res) => {
-  const { name, email, password, role } = req.body;
+  const { name, email, password } = req.body;
 
   if (!name || !email || !password) {
     return res.status(400).json({ message: 'Please add all fields' });
@@ -25,7 +29,7 @@ const registerUser = async (req, res) => {
     name,
     email,
     password,
-    role: role || 'reseller', 
+    role: 'reseller',
     registrationIp: req.ip
   });
 
@@ -33,10 +37,39 @@ const registerUser = async (req, res) => {
   const otp = user.getSignupOTP();
   await user.save();
 
+  // Send OTP via email (production). In dev, we can still return it.
+  try {
+    await sendEmail({
+      to: user.email,
+      subject: 'Verify your email',
+      text: `Your Beam Affiliate verification code is: ${otp}\n\nThis code expires in 10 minutes.`,
+      html: `<p>Your Beam Affiliate verification code is:</p><p><strong style="font-size:18px">${otp}</strong></p><p>This code expires in 10 minutes.</p>`,
+    });
+  } catch (e) {
+    // If email sending fails, keep response generic; dev can still use returned otp when enabled.
+    if (config.isProd) {
+      console.error('Signup OTP email failed:', e?.message || e);
+    }
+  }
+
+  // Notify admins (new signup)
+  try {
+    const n = await Notification.create({
+      recipientType: 'admin',
+      title: 'New signup',
+      message: `${user.email} signed up as ${user.role}`,
+      type: 'signup',
+      data: { userId: user._id, email: user.email, role: user.role },
+    });
+    emitToAdmins('notification', { notification: n });
+  } catch {
+    // ignore notification errors
+  }
+
   // In production, send this OTP via email
   res.status(201).json({
     message: 'User registered. Please verify your email with the OTP sent.',
-    otp: otp, // DEV ONLY
+    ...(config.isProd ? {} : { otp }), // DEV ONLY
     email: user.email
   });
 };
@@ -99,6 +132,9 @@ const loginUser = async (req, res) => {
     if (!user.isVerified) {
       return res.status(401).json({ message: 'Please verify your email before logging in' });
     }
+    if (user.isActive === false) {
+      return res.status(403).json({ message: 'Account is disabled' });
+    }
 
     // Update last login IP
     user.lastLoginIp = req.ip;
@@ -153,11 +189,24 @@ const forgotPassword = async (req, res) => {
 
   await user.save({ validateBeforeSave: false });
 
-  // In a real app, you would send an email here. 
-  // For now, we'll just return the OTP in the response for testing/dev.
+  // Send reset OTP via email (production)
+  try {
+    await sendEmail({
+      to: user.email,
+      subject: 'Password reset code',
+      text: `Your password reset code is: ${otp}\n\nThis code expires in 10 minutes.`,
+      html: `<p>Your password reset code is:</p><p><strong style="font-size:18px">${otp}</strong></p><p>This code expires in 10 minutes.</p>`,
+    });
+  } catch (e) {
+    if (config.isProd) {
+      console.error('Reset OTP email failed:', e?.message || e);
+    }
+  }
+
+  // In production, do not return OTP.
   res.status(200).json({
-    message: 'OTP generated (In production this would be sent via email)',
-    otp: otp
+    message: 'If the email exists, a verification code has been sent.',
+    ...(config.isProd ? {} : { otp })
   });
 };
 

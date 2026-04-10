@@ -4,6 +4,7 @@ const eventSchema = new mongoose.Schema({
   type: {
     type: String, // 'view', 'click', 'add_to_cart', 'purchase', 'custom'
     required: true,
+    index: true,
   },
   resellerId: {
     type: String,
@@ -11,6 +12,24 @@ const eventSchema = new mongoose.Schema({
   },
   sessionId: {
     type: String,
+    index: true,
+  },
+  deviceId: {
+    type: String,
+    index: true,
+  },
+  referralCode: {
+    type: String,
+    index: true,
+  },
+  couponCode: {
+    type: String,
+    index: true,
+  },
+  // Optional link to a user (if known)
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
     index: true,
   },
   metadata: {

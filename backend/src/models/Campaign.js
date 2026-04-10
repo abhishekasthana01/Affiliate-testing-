@@ -29,6 +29,17 @@ const campaignSchema = new mongoose.Schema({
     ref: 'User',
     required: true,
   },
+  segmentId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Segment',
+    default: null,
+    index: true,
+  },
+  // Optional explicit recipients (override segment)
+  recipients: {
+    type: [String], // emails
+    default: undefined,
+  },
   recipientsCount: {
     type: Number,
     default: 0,

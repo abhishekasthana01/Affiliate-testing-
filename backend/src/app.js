@@ -17,7 +17,7 @@ app.use(compression());
 
 // CORS Configuration
 app.use(cors({
-  origin: 'http://localhost:5173', // Replace '*' with your specific frontend URL
+  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "X-Reseller-Id"]
@@ -49,6 +49,9 @@ app.use('/reseller', require('./routes/dashboard'));
 app.use('/privacy', require('./routes/privacyRoutes'));
 app.use('/marketing', require('./routes/marketingRoutes'));
 app.use('/analytics', require('./routes/analyticsRoutes'));
+app.use('/admin', require('./routes/adminRoutes'));
+app.use('/admin-invite', require('./routes/adminInvitePublicRoutes'));
+app.use('/notifications', require('./routes/notificationRoutes'));
 
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to the Affiliate Platform API' });

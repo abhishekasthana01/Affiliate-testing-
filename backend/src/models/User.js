@@ -28,6 +28,18 @@ const userSchema = new mongoose.Schema(
       enum: ['reseller', 'admin'],
       default: 'reseller',
     },
+    isSuperAdmin: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    // Optional fine-grained permissions (primarily for admins).
+    // Example: ["admin:users:read", "admin:payouts:approve"]
+    permissions: {
+      type: [String],
+      default: undefined,
+      index: true,
+    },
     resellerId: {
       type: String,
       unique: true,

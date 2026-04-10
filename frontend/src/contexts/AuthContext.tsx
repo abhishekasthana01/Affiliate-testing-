@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { STORAGE_KEYS, storage } from '../lib/storage';
 import { authService } from '../services/authService';
+import { resetRealtimeSocket } from '../services/realtimeClient';
 
 type User = {
   id: string;
@@ -91,6 +92,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       storage.remove(STORAGE_KEYS.user);
       setToken(null);
       setUser(null);
+      resetRealtimeSocket();
     },
     updateUser(updates: Partial<User>) {
       setUser((prev) => {
