@@ -1,0 +1,209 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
+import { normalizeCommissionRate } from '@/lib/commission';
+
+export async function GET(request: NextRequest) {
+  try {
+    const userId = request.headers.get('x-user-id')!;
+
+    // Get user from database
+
+    // Get user from database
+    const user = await prisma.user.findUnique({
+      where: { id: userId }
+    });
+
+    if (!user || user.role !== 'ADMIN') {
+      return NextResponse.json(
+        { error: 'Access denied. Admin role required.' },
+        { status: 403 }
+      );
+    }
+
+    // Fetch all affiliates with their user info and counts
+    const affiliates = await prisma.affiliate.findMany({
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            status: true,
+            createdAt: true
+          }
+        },
+        _count: {
+          select: {
+            referrals: true,
+            commissions: true,
+            payouts: true
+          }
+        },
+        referrals: {
+          select: {
+            _count: {
+              select: {
+                clicks: true
+              }
+            }
+          }
+        },
+        commissions: {
+          select: {
+            amountCents: true
+          }
+        },
+        conversions: {
+          select: {
+            amountCents: true
+          }
+        },
+        partnerGroup: true
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+
+    // Map to include calculated totals
+    const affiliatesWithTotals = affiliates.map(affiliate => {
+      const totalClicks = affiliate.referrals.reduce((sum, ref) => sum + ref._count.clicks, 0);
+      const totalRevenueCents = affiliate.conversions.reduce((sum, conv) => sum + conv.amountCents, 0);
+      const totalCommissionCents = affiliate.commissions.reduce((sum, comm) => sum + comm.amountCents, 0);
+      const groupRate = normalizeCommissionRate(affiliate.partnerGroup?.commissionRate);
+      const commissionRate = affiliate.commissionRateOverride != null
+        ? normalizeCommissionRate(affiliate.commissionRateOverride!)
+        : groupRate;
+      
+      return {
+        ...affiliate,
+        commissionRate,
+        commissionRateOverride: affiliate.commissionRateOverride,
+        effectiveCommissionRate: commissionRate,
+        totalClicks,
+        totalRevenueCents,
+        totalCommissionCents,
+        totalLeads: affiliate._count.referrals,
+      };
+    });
+
+    // Get currency symbol
+    const { getCurrencySymbol } = await import('@/lib/currency');
+    const currencySymbol = await getCurrencySymbol();
+
+    return NextResponse.json({
+      success: true,
+      affiliates: affiliatesWithTotals,
+      currencySymbol,
+    });
+  } catch (error) {
+    console.error('Get affiliates API error:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch affiliates' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const userId = request.headers.get('x-user-id')!;
+
+    // Get user from database
+
+    // Get user from database
+    const user = await prisma.user.findUnique({
+      where: { id: userId }
+    });
+
+    if (!user || user.role !== 'ADMIN') {
+      return NextResponse.json(
+        { error: 'Access denied. Admin role required.' },
+        { status: 403 }
+      );
+    }
+
+    const body = await request.json();
+
+    // Validate with Zod
+    const { success, data, error: validationError } = await import('@/lib/validations').then(m => m.affiliateCreateSchema.safeParse(body));
+
+    if (!success) {
+      return NextResponse.json(
+        { error: 'Validation failed', details: validationError.issues },
+        { status: 400 }
+      );
+    }
+
+    const { name, email, password } = data;
+
+    // Check if user already exists
+    const existingUser = await prisma.user.findUnique({
+      where: { email }
+    });
+
+    if (existingUser) {
+      return NextResponse.json(
+        { error: 'User with this email already exists' },
+        { status: 400 }
+      );
+    }
+
+    // Generate password if not provided
+    const crypto = await import('crypto');
+    const userPassword = password || `AF${crypto.randomBytes(12).toString('base64url')}`;
+
+    // Hash password with bcrypt
+    const hashedPassword = await (await import('bcryptjs')).hash(userPassword, 12);
+
+    // Create new user
+    const newUser = await prisma.user.create({
+      data: {
+        name,
+        email,
+        role: 'AFFILIATE',
+        status: 'ACTIVE',
+        password: hashedPassword
+      }
+    });
+
+    // Create affiliate profile
+    const { generateResellerId } = await import('@/lib/reseller-id');
+    const resellerId = await generateResellerId();
+
+    const affiliate = await prisma.affiliate.create({
+      data: {
+        userId: newUser.id,
+        resellerId,
+        referralCode: `AF${Date.now()}${(await import('crypto')).randomBytes(3).toString('hex').toUpperCase().slice(0, 4)}`,
+        balanceCents: 0,
+        payoutDetails: {}
+      }
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: 'Affiliate created successfully',
+      affiliate: {
+        id: affiliate.id,
+        userId: newUser.id,
+        resellerId: affiliate.resellerId,
+        name: newUser.name,
+        email: newUser.email,
+        referralCode: affiliate.referralCode,
+        balanceCents: affiliate.balanceCents,
+        createdAt: affiliate.createdAt
+      },
+      // Note: Password is sent to admin once and should be communicated
+      // securely to the affiliate. It is not stored in logs.
+      temporaryPassword: userPassword
+    });
+  } catch (error) {
+    console.error('Create affiliate API error:', error);
+    return NextResponse.json(
+      { error: 'Failed to create affiliate' },
+      { status: 500 }
+    );
+  }
+}

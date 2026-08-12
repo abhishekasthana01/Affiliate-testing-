@@ -1,0 +1,190 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600;1,700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* ── Beam Brand Light Theme ─────────────────────── */
+    --background: 0 0% 100%;
+    --foreground: 192 78% 12%;            /* charcoal-800 */
+    --card: 0 0% 100%;
+    --card-foreground: 192 78% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 192 78% 12%;
+    --primary: 342 100% 56%;              /* beam-pink #FF2069 */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 170 56% 90%;             /* light teal tint */
+    --secondary-foreground: 192 78% 12%;
+    --muted: 195 20% 95%;
+    --muted-foreground: 192 15% 46%;
+    --accent: 170 56% 90%;
+    --accent-foreground: 192 78% 12%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 195 25% 90%;
+    --input: 195 25% 90%;
+    --ring: 342 100% 56%;                 /* beam-pink for focus rings */
+    --radius: 0.625rem;
+
+    /* Charts use the full Beam palette */
+    --chart-1: 342 100% 56%;              /* pink */
+    --chart-2: 170 58% 59%;               /* teal */
+    --chart-3: 253 73% 54%;               /* purple */
+    --chart-4: 44 91% 59%;                /* yellow */
+    --chart-5: 192 78% 12%;               /* charcoal */
+
+    /* Sidebar — light variant */
+    --sidebar-background: 195 20% 98%;
+    --sidebar-foreground: 192 78% 12%;
+    --sidebar-primary: 342 100% 56%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 170 56% 93%;
+    --sidebar-accent-foreground: 192 78% 12%;
+    --sidebar-border: 195 20% 91%;
+    --sidebar-ring: 342 100% 56%;
+  }
+
+  .dark {
+    --background: 192 78% 7%;             /* very dark charcoal */
+    --foreground: 0 0% 95%;
+    --card: 192 60% 10%;
+    --card-foreground: 0 0% 95%;
+    --popover: 192 60% 10%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 342 100% 56%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 192 40% 16%;
+    --secondary-foreground: 0 0% 95%;
+    --muted: 192 30% 15%;
+    --muted-foreground: 195 15% 55%;
+    --accent: 192 40% 16%;
+    --accent-foreground: 0 0% 95%;
+    --destructive: 0 63% 48%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 192 30% 18%;
+    --input: 192 30% 18%;
+    --ring: 342 100% 56%;
+
+    --chart-1: 342 100% 60%;
+    --chart-2: 170 58% 62%;
+    --chart-3: 253 73% 62%;
+    --chart-4: 44 91% 62%;
+    --chart-5: 195 20% 75%;
+
+    --sidebar-background: 192 78% 7%;
+    --sidebar-foreground: 0 0% 92%;
+    --sidebar-primary: 342 100% 56%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 192 40% 14%;
+    --sidebar-accent-foreground: 0 0% 92%;
+    --sidebar-border: 192 30% 16%;
+    --sidebar-ring: 342 100% 56%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Nunito', sans-serif;
+    letter-spacing: -0.015em;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    letter-spacing: -0.025em;
+    font-weight: 700;
+  }
+}
+
+/* Smooth Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.3);
+}
+
+/* Premium UI Utilities */
+@layer utilities {
+  .glass {
+    @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-xl;
+  }
+  
+  .dark .glass {
+    @apply bg-black/40 backdrop-blur-md border border-white/10 shadow-2xl;
+  }
+
+  .glass-card {
+    @apply bg-white/40 backdrop-blur-xl border border-white/20 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)] rounded-2xl transition-all duration-300 hover:shadow-[0_8px_32px_0_rgba(31,38,135,0.15)] hover:bg-white/50;
+  }
+
+  .dark .glass-card {
+    @apply bg-neutral-900/40 backdrop-blur-xl border border-white/5 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] rounded-2xl transition-all duration-300 hover:shadow-[0_8px_32px_0_rgba(0,0,0,0.5)] hover:bg-neutral-900/60;
+  }
+
+  .glass-morphism {
+    background: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+  }
+
+  /* Beam brand gradients */
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-beam-pink-500 to-beam-purple-500;
+  }
+
+  .text-gradient-teal {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-beam-teal-400 to-beam-teal-600;
+  }
+
+  .bg-beam-gradient {
+    @apply bg-gradient-to-br from-beam-pink-500 via-beam-purple-500 to-beam-teal-400;
+  }
+
+  .bg-beam-gradient-subtle {
+    @apply bg-gradient-to-br from-beam-pink-50 via-white to-beam-teal-50;
+  }
+
+  .dark .bg-beam-gradient-subtle {
+    @apply bg-gradient-to-br from-beam-pink-900/20 via-transparent to-beam-teal-900/20;
+  }
+
+  .beam-shadow {
+    box-shadow: 0 4px 24px -4px rgba(255, 32, 105, 0.15),
+                0 0 0 1px rgba(255, 32, 105, 0.05);
+  }
+
+  .beam-shadow-lg {
+    box-shadow: 0 8px 40px -8px rgba(255, 32, 105, 0.2),
+                0 0 0 1px rgba(255, 32, 105, 0.08);
+  }
+
+  .animate-slow-fade {
+    animation: fade-in 1.5s ease-out;
+  }
+
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}

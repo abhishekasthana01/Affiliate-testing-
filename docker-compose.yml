@@ -1,0 +1,48 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: beam-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://beam:beam@db:5432/beam
+      - JWT_SECRET=${JWT_SECRET:-change-me-to-a-random-string-min-32-chars}
+      - RESEND_API_KEY=${RESEND_API_KEY:-}
+      - RESEND_FROM_EMAIL=${RESEND_FROM_EMAIL:-Beam <onboarding@resend.dev>}
+      - ADMIN_EMAILS=${ADMIN_EMAILS:-}
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - beam-network
+
+  db:
+    image: postgres:16-alpine
+    container_name: beam-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=beam
+      - POSTGRES_PASSWORD=beam
+      - POSTGRES_DB=beam
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U beam"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - beam-network
+
+volumes:
+  postgres_data:
+
+networks:
+  beam-network:
+    driver: bridge

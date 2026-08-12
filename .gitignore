@@ -1,0 +1,68 @@
+# Dependencies
+node_modules
+/.pdf-venv/
+/.pnp
+.pnp.js
+
+# Testing
+/coverage
+
+# Next.js
+/.next/
+/out/
+
+# Production
+/build
+/dist
+
+# Environment Variables
+.env
+.env*.local
+.env.production
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Prisma
+/generated/prisma
+/prisma/migrations/*.sql
+
+# IDE
+.vscode/settings.json
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs
+*.log
+
+# Copilot
+.github/copilot-instructions.md
+
+# Scripts
+/scripts/
+
+# User-uploaded product images
+/public/uploads/products/*
+!/public/uploads/products/.gitkeep
+# Terraform
+terraform/.terraform/
+terraform/*.tfstate*
+terraform/terraform.tfvars
+
+.pdf-venv/
