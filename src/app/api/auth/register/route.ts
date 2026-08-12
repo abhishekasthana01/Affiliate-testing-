@@ -19,12 +19,19 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { email, name, beamNumber } = body;
+    const { email, name, beamNumber, password } = body;
 
     // Validate required fields
-    if (!email || !name) {
+    if (!email || !name || !password) {
       return NextResponse.json(
-        { success: false, message: 'Email and name are required' },
+        { success: false, message: 'Email, name, and password are required' },
+        { status: 400 }
+      );
+    }
+
+    if (String(password).length < 8) {
+      return NextResponse.json(
+        { success: false, message: 'Password must be at least 8 characters long' },
         { status: 400 }
       );
     }
@@ -46,13 +53,9 @@ export async function POST(request: NextRequest) {
     // SECURITY: Only allow registration as ADMIN if they have a pending invitation
     const userRole = invitation ? 'ADMIN' : 'AFFILIATE';
 
-    // Generate a cryptographically secure random password
-    const crypto = await import('crypto');
-    const randomPassword = crypto.randomBytes(24).toString('base64url');
-
     const result = await auth.register({
       email: email.toLowerCase().trim(),
-      password: randomPassword,
+      password: String(password),
       name: name.trim(),
       role: userRole,
       beamNumber: beamNumber ? String(beamNumber).trim() : undefined,
